@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.ac.sunmoon.clms.changenotice.ChangeNoticeMapper">
+	<select id="selectAll" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice" parameterType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			   NO
+			  ,REGISTERED_DATE
+			  ,CHECKED
+			  ,DIVISION
+              ,COMPUTER_NO
+              ,SW_LICENSE_NO
+		      ,CONTENTS
+		      ,NOTE
+		FROM 
+		       CHANGE_NOTICE
+	</select>
+	
+	<select id="selectcomputerName" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			DISTINCT 
+			CHANGE_NOTICE.COMPUTER_NO
+			, COMPUTER.NAME COMPUTER_NAME 
+		FROM CHANGE_NOTICE, COMPUTER 
+		WHERE CHANGE_NOTICE.COMPUTER_NO = COMPUTER.NO
+	</select>
+	
+	<select id="selectSwName" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			DISTINCT 
+			CHANGE_NOTICE.SW_LICENSE_NO
+			, SW_LICENSE.SW_NAME SW_NAME
+		FROM CHANGE_NOTICE, SW_LICENSE 
+		WHERE CHANGE_NOTICE.COMPUTER_NO = SW_LICENSE.NO
+	</select>
+	
+	<select id="select" parameterType="kr.ac.sunmoon.clms.changenotice.ChangeNotice" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			  NO
+			, REGISTERED_DATE
+			, CHECKED
+			, DIVISION
+			, COMPUTER_NO
+            , SW_LICENSE_NO
+			, CONTENTS
+			, NOTE
+			<!-- <if test='division eq "C"'>
+				, (SELECT DISTINCT COMPUTER.NAME FROM CHANGE_NOTICE, COMPUTER WHERE CHANGE_NOTICE.COMPUTER_NO = COMPUTER.NO) COMPUTER_NAME
+			</if>
+			<if test='division eq "L"'>
+				, (SELECT DISTINCT SW_LICENSE.SW_NAME FROM CHANGE_NOTICE, SW_LICENSE WHERE CHANGE_NOTICE.SW_LICENSE_NO = SW_LICENSE.NO) SW_NAME
+			</if> -->
+		FROM CHANGE_NOTICE
+		WHERE CHANGE_NOTICE.NO = #{no}
+	</select>
+	
+	<select id="selectByNo" parameterType="int" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			   NO
+			  ,REGISTERED_DATE
+			  ,CHECKED
+			  ,DIVISION
+		      ,TARGET_NO
+	          ,(SELECT DISTINCT COMPUTER.NAME FROM CHANGE_NOTICE,COMPUTER WHERE COMPUTER.NO = CHANGE_NOTICE.TARGET_NO) COMPUTER_NAME
+		      ,(SELECT DISTINCT SW_LICENSE.SW_NAME FROM CHANGE_NOTICE,SW_LICENSE WHERE SW_LICENSE.NO = CHANGE_NOTICE.TARGET_NO) LICENSE_NAME
+		      ,CONTENTS
+		      ,NOTE
+		FROM 
+		       CHANGE_NOTICE
+		WHERE
+			   CHANGE_NOTICE.NO=#{no}
+	</select>
+		
+	<select id="selectByComputerNo" parameterType="int" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			CHANGE_NOTICE.NO
+		   ,TARGET_NO
+		   ,REGISTERED_DATE
+		   ,CONTENTS
+		   ,CHECKED
+		   ,DIVISION
+		   ,CHANGE_NOTICE.NOTE
+		   ,CHANGE_NOTICE.COMPUTER_NAME
+		   ,NOTE
+		FROM
+			CHANGE_NOTICE,COMPUTER
+		WHERE
+			COMPUTER.NO=#{no} AND CHANGE_NOTICE.TARGET_NO = COMPUTER.NO
+	</select>
+	
+	<select id="selectByLicenseNo" parameterType="int" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			CHANGE_NOTICE.NO
+		   ,TARGET_NO
+		   ,REGISTERED_DATE
+		   ,CONTENTS
+		   ,CHECKED
+		   ,DIVISION
+		   ,CHANGE_NOTICE.NOTE
+		   ,NOTE
+		FROM
+			CHANGE_NOTICE,SW_LICENSE
+		WHERE
+			SW_LICENSE.NO=#{no} AND CHANGE_NOTICE.TARGET_NO = SW_LICENSE.NO
+	</select>
+	
+	<select id="selectByDivision" parameterType="java.lang.String" resultType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		SELECT 
+			   NO
+			  ,REGISTERED_DATE
+			  ,CHECKED
+			  ,DIVISION
+              ,COMPUTER_NO
+              ,SW_LICENSE_NO
+		      ,(SELECT DISTINCT COMPUTER.NAME FROM CHANGE_NOTICE, COMPUTER WHERE CHANGE_NOTICE.COMPUTER_NO = COMPUTER.NO  AND CHANGE_NOTICE.DIVISION = 'C') COMPUTER_NAME
+		      ,(SELECT DISTINCT SW_LICENSE.SW_NAME FROM CHANGE_NOTICE, SW_LICENSE WHERE CHANGE_NOTICE.SW_LICENSE_NO = SW_LICENSE.NO AND CHANGE_NOTICE.DIVISION = 'L') SW_NAME
+		      ,CONTENTS
+		      ,NOTE
+		FROM 
+		       CHANGE_NOTICE
+		<where>
+			<if test='division eq "Y"'> 
+				CHECKED = 'Y'
+			</if>
+			<if test='division eq "N"'> 
+				AND CHECKED = 'N'
+			</if>
+			<if test='division eq "C"'>
+				AND DIVISION=#{division}
+			</if>
+			<if test='division eq "L"'>
+				AND DIVISION=#{division}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insert" parameterType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		INSERT INTO
+			CHANGE_NOTICE
+		VALUES(
+			CHANGE_NOTICE_NO_SEQ.NEXTVAL
+			<if test="computerNo > 0">
+				,#{computerNo}
+				,null
+			</if>
+		   	<if test="swLicenseNo > 0">
+		   		,null
+		   		,#{swLicenseNo}
+		   	</if>
+		   ,SYSDATE
+		   ,#{contents}
+		   ,'N'
+		   ,#{division}
+		   ,''
+		    )	
+	</insert>
+	
+	<update id="update" parameterType="kr.ac.sunmoon.clms.changenotice.ChangeNotice">
+		UPDATE CHANGE_NOTICE
+		<set>
+			<if test="note != null">
+				CHECKED = #{checked},note=#{note}
+			</if>
+			<if test="note eq null">
+				CHECKED = #{checked},note=''
+			</if>
+		</set>
+		WHERE NO = #{no}
+	</update>
+	
+	<update id="updateByNo" parameterType="int">
+		update change_notice
+		set checked = 'Y'
+		where no = #{no}
+	</update>
+	
+	<select id="noticeCount" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM 
+			CHANGE_NOTICE
+		WHERE 
+			CHECKED = 'N'
+	</select>
+	
+	<select id="checkDivision" resultType="string" parameterType="int">
+		SELECT DIVISION
+		FROM CHANGE_NOTICE
+		WHERE NO=#{no}
+	</select>
+</mapper>

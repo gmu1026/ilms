@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.ac.sunmoon.clms.sw.SWMapper">
+	<select id="selectAll" parameterType="kr.ac.sunmoon.clms.sw.Software" resultType="kr.ac.sunmoon.clms.sw.Software">
+		SELECT NO
+			 , NAME
+			 , USAGE
+			 , USE_DEPT
+			 , SERIAL_NUMBER
+			 , DIVISION
+		FROM 
+			   SW
+		<where>
+			<if test="division != null and division != ''">
+				DIVISION = #{division}
+			</if>
+		 </where>
+	</select>
+	
+	<select id="select" parameterType="kr.ac.sunmoon.clms.sw.Software" resultType="kr.ac.sunmoon.clms.sw.Software">
+		SELECT NO 
+			 , NAME
+			 , USAGE
+			 , USE_DEPT
+			 , SERIAL_NUMBER
+			 , DIVISION
+		FROM 
+			   SW
+		<where>
+			<if test="no > 0">NO = #{no}</if>
+		</where>
+	</select>
+	
+	<insert id="insert" parameterType="kr.ac.sunmoon.clms.sw.Software">
+		INSERT INTO SW
+		VALUES (SW_NO_SEQ.NEXTVAL
+	 		  , #{name}
+	  		  , #{usage}
+	  		  , #{useDept}
+	 		  , #{serialNumber}
+	  		  , #{division}
+		)
+	</insert>
+	
+	<update id="update" parameterType="kr.ac.sunmoon.clms.sw.Software">
+		UPDATE SW
+		<set>
+			<if test="name neq null">NAME = #{name},</if>
+			<if test="usage neq null">USAGE = #{usage},</if>
+			<if test="useDept neq null">USE_DEPT = #{useDept},</if>
+			<if test="serialNumber neq null">SERIAL_NUMBER = #{serialNumber},</if>
+			<if test="division neq null">DIVISION = #{division},</if>
+		</set>
+		WHERE NO = #{no}
+	</update>
+	
+	<delete id="delete" parameterType="kr.ac.sunmoon.clms.sw.Software">
+		DELETE FROM SW
+		<where>
+			<if test="no">
+				NO = #{no}
+			</if>
+		</where>
+	</delete>
+</mapper>

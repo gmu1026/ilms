@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.ac.sunmoon.clms.account.AccountMapper">
+	<select id="selectAll"  parameterType="kr.ac.sunmoon.clms.account.Account" resultType="kr.ac.sunmoon.clms.account.Account">
+		SELECT
+			   ID
+			 , PASSWORD
+			 , NAME
+			 , EXTENSION_NO
+			 , AUTHORITY
+		FROM ACCOUNT
+		<where>
+			<if test="id != ''">
+				ID = #{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="select" parameterType="kr.ac.sunmoon.clms.account.Account" resultType="kr.ac.sunmoon.clms.account.Account">
+		SELECT 
+			  ID
+			, PASSWORD
+			, NAME
+			, EXTENSION_NO
+			, AUTHORITY
+		FROM ACCOUNT 
+		WHERE ID=#{id}
+	</select>
+	
+	<select id="checkId" resultType="int" parameterType="String">
+		SELECT
+		 	COUNT(*) 
+	 	FROM ACCOUNT 
+	 	WHERE ID=#{id}
+	</select>
+	
+	<insert id="insert" parameterType="kr.ac.sunmoon.clms.account.Account">
+		INSERT INTO ACCOUNT 
+		VALUES (#{id}, #{password}, #{name}, #{extensionNo}, #{authority})
+	</insert>
+	
+	<update id="update" parameterType="kr.ac.sunmoon.clms.account.Account">
+		UPDATE ACCOUNT 
+		<set> 
+			<if test="password != null and password != ''">PASSWORD = #{password},</if>
+			<if test="name != null and password != ''">NAME = #{name},</if>
+			<if test="extensionNo != 0">EXTENSION_NO = #{extensionNo},</if>
+			<if test="authority != null">AUTHORITY = #{authority},</if>
+		</set> 
+		WHERE ID = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="string">
+		DELETE FROM ACCOUNT 
+		WHERE ID = #{id}
+	</delete>
+</mapper>
